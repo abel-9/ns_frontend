@@ -46,7 +46,7 @@ export const signinWithGoogle = createServerFn({ method: "POST" })
       access_token: tokenPairs.access_token,
       refresh_token: tokenPairs.refresh_token,
     });
-    return response.data;
+    return tokenPairs;
   });
 
 export const googleOAuthUrl = createServerFn({ method: "GET" }).handler(

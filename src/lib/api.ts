@@ -16,7 +16,7 @@ api.interceptors.response.use(
     const message = error.response?.data?.message || error.message
     const url = error.config?.url
 
-    // console.log(error)
+    console.log(error)
 
     console.error(`[API Error] ${status || 'Network'} | ${url}:`, message)
 

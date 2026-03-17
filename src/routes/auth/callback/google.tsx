@@ -34,10 +34,11 @@ function RouteComponent() {
   const loaderData = useLoaderData({ from: "/auth/callback/google" });
   const navigate = Route.useNavigate();
 
+  console.log("Loader data:", loaderData);
+
   useEffect(() => {
     // Only trigger if loaderData exists and has not been "seen" yet
     if (!loaderData) return;
-
     if (loaderData.success) {
       toast.success("signup successfully"); // ID prevents duplicates
       navigate({ to: "/" });

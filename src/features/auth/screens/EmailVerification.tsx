@@ -27,7 +27,7 @@ const EmailVerificationScreen = () => {
   });
 
   const handleVerifyEmail = () => {
-    verifyUserEmail({ data: { email: resolvedEmail, otp } });
+    verifyUserEmail({ data: { email: resolvedEmail, code: otp } });
   };
 
   const minutes = Math.floor(secondsLeft / 60);
