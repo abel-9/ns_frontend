@@ -27,7 +27,7 @@ const EmailVerificationScreen = () => {
   });
 
   const handleVerifyEmail = () => {
-    verifyUserEmail({ data: { email: resolvedEmail, code: otp } });
+    verifyUserEmail({ data: { email: resolvedEmail, otp: otp } });
   };
 
   const minutes = Math.floor(secondsLeft / 60);
@@ -41,7 +41,10 @@ const EmailVerificationScreen = () => {
         <h1 className="text-2xl font-semibold mb-2">Email Verification</h1>
         <p className="text-sm mb-6 text-muted-foreground">
           Enter the verification code sent to{" "}
-          <span className="font-semibold text-foreground">{resolvedEmail || "your email"}</span>.
+          <span className="font-semibold text-foreground">
+            {resolvedEmail || "your email"}
+          </span>
+          .
         </p>
 
         {!resolvedEmail && (
@@ -68,7 +71,10 @@ const EmailVerificationScreen = () => {
 
         <div className="mt-4 flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            Code expires in <span className="font-semibold text-foreground">{formattedTime}</span>
+            Code expires in{" "}
+            <span className="font-semibold text-foreground">
+              {formattedTime}
+            </span>
           </span>
 
           <button

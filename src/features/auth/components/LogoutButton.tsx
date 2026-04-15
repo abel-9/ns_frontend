@@ -20,9 +20,7 @@ const LogoutButton = () => {
         </Button>
       }
     >
-      <Button onClick={() => signoutUser({})} variant="outline">
-        Logout
-      </Button>
+      <Button onClick={() => signoutUser({})}>Logout</Button>
     </ClientOnly>
   );
 };

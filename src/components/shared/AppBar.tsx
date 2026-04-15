@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import LogoutButton from "#/features/auth/components/LogoutButton";
 import { Route } from "#/routes/__root";
+import UserLogo from "#/features/user/components/UserLogo";
 
 type AppBarLink = {
   label: string;
@@ -41,10 +41,7 @@ const AppBar = ({ navLinks }: AppBarProps) => {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <span className="text-sm text-foreground">
-                Welcome, {user.email}
-              </span>
-              <LogoutButton />
+              <UserLogo />
             </>
           ) : (
             <>
