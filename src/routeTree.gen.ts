@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as Chat3RouteImport } from './routes/chat3'
+import { Route as Chat2RouteImport } from './routes/chat2'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -28,6 +30,16 @@ const ProfileRoute = ProfileRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Chat3Route = Chat3RouteImport.update({
+  id: '/chat3',
+  path: '/chat3',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Chat2Route = Chat2RouteImport.update({
+  id: '/chat2',
+  path: '/chat2',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -75,6 +87,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
+  '/chat2': typeof Chat2Route
+  '/chat3': typeof Chat3Route
   '/dashboard': typeof DashboardRouteWithChildren
   '/profile': typeof ProfileRoute
   '/auth/email-verification': typeof AuthEmailVerificationRoute
@@ -87,6 +101,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
+  '/chat2': typeof Chat2Route
+  '/chat3': typeof Chat3Route
   '/profile': typeof ProfileRoute
   '/auth/email-verification': typeof AuthEmailVerificationRoute
   '/auth/signin': typeof AuthSigninRoute
@@ -99,6 +115,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/chat': typeof ChatRoute
+  '/chat2': typeof Chat2Route
+  '/chat3': typeof Chat3Route
   '/dashboard': typeof DashboardRouteWithChildren
   '/profile': typeof ProfileRoute
   '/auth/email-verification': typeof AuthEmailVerificationRoute
@@ -113,6 +131,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/chat'
+    | '/chat2'
+    | '/chat3'
     | '/dashboard'
     | '/profile'
     | '/auth/email-verification'
@@ -125,6 +145,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/chat'
+    | '/chat2'
+    | '/chat3'
     | '/profile'
     | '/auth/email-verification'
     | '/auth/signin'
@@ -136,6 +158,8 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/chat'
+    | '/chat2'
+    | '/chat3'
     | '/dashboard'
     | '/profile'
     | '/auth/email-verification'
@@ -149,6 +173,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ChatRoute: typeof ChatRoute
+  Chat2Route: typeof Chat2Route
+  Chat3Route: typeof Chat3Route
   DashboardRoute: typeof DashboardRouteWithChildren
   ProfileRoute: typeof ProfileRoute
   AuthEmailVerificationRoute: typeof AuthEmailVerificationRoute
@@ -171,6 +197,20 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat3': {
+      id: '/chat3'
+      path: '/chat3'
+      fullPath: '/chat3'
+      preLoaderRoute: typeof Chat3RouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat2': {
+      id: '/chat2'
+      path: '/chat2'
+      fullPath: '/chat2'
+      preLoaderRoute: typeof Chat2RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -248,6 +288,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ChatRoute: ChatRoute,
+  Chat2Route: Chat2Route,
+  Chat3Route: Chat3Route,
   DashboardRoute: DashboardRouteWithChildren,
   ProfileRoute: ProfileRoute,
   AuthEmailVerificationRoute: AuthEmailVerificationRoute,

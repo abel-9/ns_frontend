@@ -6,6 +6,8 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { useNavigate } from "@tanstack/react-router";
+import { useSSEChat } from "#/features/chat/hooks/useSendChatMessage";
+import { useChat } from "#/features/chat/context/ChatContext";
 
 type Message = {
   id: string;
@@ -32,14 +34,17 @@ interface ChatProps {
 const Chat: React.FC<ChatProps> = ({ onclose }) => {
   const [messages, setMessages] = useState<Message[]>(createInitialMessages);
   const [input, setInput] = useState("");
-  const [isReplying, setIsReplying] = useState(false);
+  const { filters } = useChat();
+
   const listRef = useRef<HTMLDivElement>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
   const navigator = useNavigate();
 
+  // ✅ NEW: use shared streaming hook
+  const { send, response, isStreaming, error, stop } = useSSEChat();
+
   const canSend = useMemo(
-    () => input.trim().length > 0 && !isReplying,
-    [input, isReplying],
+    () => input.trim().length > 0 && !isStreaming,
+    [input, isStreaming],
   );
 
   const scrollToBottom = () => {
@@ -49,74 +54,50 @@ const Chat: React.FC<ChatProps> = ({ onclose }) => {
     });
   };
 
-  const askAI = (prompt: string) => {
-    const userMsg = createMessage("user", prompt);
-    const assistantMsg = createMessage("assistant", "");
+  // ✅ append streaming assistant message dynamically
+  const derivedMessages = isStreaming
+    ? [
+        ...messages,
+        {
+          id: "streaming",
+          role: "assistant" as const,
+          content: response,
+          timestamp: new Date(),
+        },
+      ]
+    : messages;
 
-    // 1. Update UI: Add user message and the empty assistant bubble
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
-    scrollToBottom();
-
-    // 2. Prepare payload: Send ONLY previous history + the NEW user message
-    // IMPORTANT: Do NOT send the empty assistant message to Groq!
-    const apiPayload = [...messages, userMsg].map(({ role, content }) => ({
-      role,
-      content: String(content).trim(), // Ensure it's a non-empty string
-    }));
-
-    const encodedHistory = encodeURIComponent(JSON.stringify(apiPayload));
-    const eventSource = new EventSource(
-      `http://localhost:8000/api/v1/chat?history=${encodedHistory}`,
-    );
-    eventSourceRef.current = eventSource;
-
-    setIsReplying(true);
-
-    eventSource.onmessage = (event) => {
-      // 3. Update the VERY LAST message in the array (the assistant one)
-      setMessages((prev) => {
-        const updated = [...prev];
-        const lastIndex = updated.length - 1;
-        if (updated[lastIndex].role === "assistant") {
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            content: updated[lastIndex].content + event.data,
-          };
-        }
-        return updated;
-      });
-      scrollToBottom();
-    };
-
-    eventSource.onerror = () => {
-      eventSource.close();
-      eventSourceRef.current = null;
-      setIsReplying(false);
-    };
-  };
-
-  const resetChat = () => {
-    eventSourceRef.current?.close();
-    eventSourceRef.current = null;
-    setIsReplying(false);
-    setInput("");
-    setMessages(createInitialMessages());
-  };
-
+  // ✅ auto scroll
   useEffect(() => {
-    return () => {
-      eventSourceRef.current?.close();
-      eventSourceRef.current = null;
-    };
-  }, []);
+    scrollToBottom();
+  }, [derivedMessages, isStreaming]);
+
+  // ✅ when stream finishes, persist assistant message
+  useEffect(() => {
+    if (!isStreaming && response) {
+      setMessages((prev) => [...prev, createMessage("assistant", response)]);
+    }
+  }, [isStreaming, response]);
 
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const prompt = input.trim();
-    if (!prompt || isReplying) return;
-    askAI(prompt);
+    if (!prompt || isStreaming) return;
+
+    // ✅ optimistic user message
+    setMessages((prev) => [...prev, createMessage("user", prompt)]);
+
+    // ✅ trigger streaming
+    send(prompt, filters.activeConversationId!);
+
     setInput("");
+  };
+
+  const resetChat = () => {
+    stop();
+    setInput("");
+    setMessages(createInitialMessages());
   };
 
   return (
@@ -144,13 +125,14 @@ const Chat: React.FC<ChatProps> = ({ onclose }) => {
           </Tooltip>
         </div>
       </div>
+
       <div className="h-96">
         <div className="flex h-full w-full flex-col rounded-3xl border border-border bg-background">
           <div
             ref={listRef}
             className="scrollbar flex-1 space-y-3 overflow-y-auto p-3 overflow-hidden"
           >
-            {messages.map((message) => {
+            {derivedMessages.map((message) => {
               const isUser = message.role === "user";
 
               return (
@@ -195,6 +177,10 @@ const Chat: React.FC<ChatProps> = ({ onclose }) => {
               <ArrowUp />
             </Button>
           </form>
+
+          {error && (
+            <div className="px-3 pb-2 text-xs text-red-500">{error}</div>
+          )}
         </div>
       </div>
     </section>

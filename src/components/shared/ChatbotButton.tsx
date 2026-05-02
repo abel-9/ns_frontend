@@ -1,6 +1,7 @@
 import { cn } from "#/lib/utils";
 import { useEffect, useId, useRef, useState } from "react";
 import Chat from "./Chat";
+import { ChatProvider } from "#/features/chat/context/ChatContext";
 
 const ChatbotButton = () => {
   const [open, setOpen] = useState(false);
@@ -49,7 +50,9 @@ const ChatbotButton = () => {
             : "pointer-events-none translate-y-2 scale-95 opacity-0",
         )}
       >
-        <Chat onclose={() => setOpen(false)} />
+        <ChatProvider>
+          <Chat onclose={() => setOpen(false)} />
+        </ChatProvider>
       </div>
 
       <div className="relative flex h-12 w-12 items-center justify-center">
